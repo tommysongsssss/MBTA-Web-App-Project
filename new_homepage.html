@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Hello Flask + Weather API</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Hello Flask</h1>
+    <p>This is the homepage for your API demo.</p>
+
+    <ul>
+        <li><a href="{{ url_for('weather_no_city') }}">Check the weather</a></li>
+        <li><a href="{{ url_for('show_temp', city='Wellesley') }}">Quick weather for Wellesley</a></li>
+    </ul>
+</div>
+</body>
+</html>
