@@ -20,12 +20,8 @@ app = Flask(__name__)
 # ------------------ Helper functions: weather, holidays, static map ------------------ #
 
 def get_weather(city: str = "Boston") -> str:
-    """
-    Return a simple string like '5.3°C, Overcast clouds'.
-    """
     if not OPENWEATHER_API_KEY:
         return "Weather: API key missing"
-
     try:
         url = (
             "https://api.openweathermap.org/data/2.5/weather"
@@ -34,7 +30,6 @@ def get_weather(city: str = "Boston") -> str:
         resp = requests.get(url, timeout=5)
         resp.raise_for_status()
         data = resp.json()
-
         temp = data["main"]["temp"]
         desc = data["weather"][0]["description"].capitalize()
         return f"{temp:.1f}°C, {desc}"
@@ -43,9 +38,6 @@ def get_weather(city: str = "Boston") -> str:
 
 
 def get_today_holiday(country: str = "US") -> str:
-    """
-    Return 'Today is X' or 'Today is not a holiday.' using Abstract Holidays API.
-    """
     if not HOLIDAYS_API_KEY:
         return "Holiday: API key missing"
 
@@ -73,19 +65,14 @@ def get_today_holiday(country: str = "US") -> str:
 
 
 def build_static_map_url(lat: float, lng: float) -> Optional[str]:
-    """
-    Build a Mapbox Static Image URL centered on (lat, lng) with an orange marker.
-    Returns None if MAPBOX_TOKEN is missing.
-    """
     if not MAPBOX_TOKEN:
         return None
 
-    # Mapbox static images: /styles/v1/{style_id}/static/{overlays}/{lon},{lat},{zoom},{bearing}/{width}x{height}
     lon = lng
     zoom = 14
     width, height = 600, 300
-
     marker = f"pin-l-marker+FF7F00({lon},{lat})"
+
     url = (
         "https://api.mapbox.com/styles/v1/mapbox/light-v11/static/"
         f"{marker}/{lon},{lat},{zoom},0/{width}x{height}"
@@ -95,7 +82,6 @@ def build_static_map_url(lat: float, lng: float) -> Optional[str]:
 
 
 def get_common_header_context():
-    """Date, weather, holiday string for both pages."""
     date_today = datetime.now().strftime("%A, %B %d, %Y")
     weather_today = get_weather()
     holiday_today = get_today_holiday()
@@ -114,16 +100,13 @@ def index():
 
     if request.method == "POST":
         place = (request.form.get("place_name") or "").strip()
+
         lat_str = (request.form.get("lat") or "").strip()
         lng_str = (request.form.get("lng") or "").strip()
 
-        # If geolocation filled lat/lng -> go to coords route
         if lat_str and lng_str:
-            return redirect(
-                url_for("nearest_mbta_coords", lat=lat_str, lng=lng_str)
-            )
+            return redirect(url_for("nearest_mbta_coords", lat=lat_str, lng=lng_str))
 
-        # Otherwise use typed place name
         if place:
             return redirect(url_for("nearest_mbta", place_name=place))
 
@@ -139,16 +122,19 @@ def nearest_mbta():
         return redirect(url_for("error"))
 
     try:
-        station_name, accessible, lat, lng = find_stop_near(place)
+        station_name, accessible, lat, lng, lines = find_stop_near(place)
         static_map_url = build_static_map_url(lat, lng)
+
         context = get_common_header_context()
         context.update(
             place=place,
             station_name=station_name,
             wheelchair_accessible=accessible,
             static_map_url=static_map_url,
+            lines=lines,
         )
         return render_template("mbta_station.html", **context)
+
     except Exception as e:
         print("Error in /nearest_mbta:", e)
         return redirect(url_for("error"))
@@ -165,7 +151,8 @@ def nearest_mbta_coords():
     try:
         lat_float = float(lat)
         lng_float = float(lng)
-        station_name, accessible, lat2, lng2 = find_stop_near_coords(lat_float, lng_float)
+
+        station_name, accessible, lat2, lng2, lines = find_stop_near_coords(lat_float, lng_float)
         static_map_url = build_static_map_url(lat2, lng2)
 
         context = get_common_header_context()
@@ -174,17 +161,19 @@ def nearest_mbta_coords():
             station_name=station_name,
             wheelchair_accessible=accessible,
             static_map_url=static_map_url,
+            lines=lines,
         )
         return render_template("mbta_station.html", **context)
+
     except Exception as e:
         print("Error in /nearest_mbta_coords:", e)
         return redirect(url_for("error"))
+
 
 @app.route("/error")
 def error():
     context = get_common_header_context()
     return render_template("error.html", **context)
-
 
 
 if __name__ == "__main__":

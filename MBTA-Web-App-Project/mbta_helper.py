@@ -2,7 +2,7 @@ import os
 import json
 import urllib.request
 import urllib.parse
-from typing import Tuple
+from typing import Tuple, List, Set
 
 from dotenv import load_dotenv
 
@@ -17,32 +17,60 @@ MBTA_BASE_URL = "https://api-v3.mbta.com"
 
 
 def get_json(url: str) -> dict:
-    """Make a request to the given URL and return JSON response."""
     with urllib.request.urlopen(url) as response:
         data = response.read().decode("utf-8")
     return json.loads(data)
 
 
 def get_lat_lng(place_name: str) -> Tuple[float, float]:
-    """
-    Given a place name, return (lat, lon) as floats using Mapbox Geocoding API.
-    """
-    encoded_place = urllib.parse.quote(place_name)
-    url = f"{MAPBOX_BASE_URL}/{encoded_place}.json?access_token={MAPBOX_TOKEN}"
+    if not MAPBOX_TOKEN:
+        raise RuntimeError("MAPBOX_TOKEN is not set in .env")
+
+    encoded = urllib.parse.quote(place_name)
+    url = f"{MAPBOX_BASE_URL}/{encoded}.json?access_token={MAPBOX_TOKEN}"
     data = get_json(url)
 
     if not data.get("features"):
         raise ValueError("No location results from Mapbox")
 
-    coords = data["features"][0]["geometry"]["coordinates"]  # [lon, lat]
-    lon, lat = coords[0], coords[1]
+    lon, lat = data["features"][0]["geometry"]["coordinates"]
     return float(lat), float(lon)
 
 
-def get_nearest_station(latitude: float, longitude: float) -> Tuple[str, bool]:
-    """
-    Given latitude and longitude, return (station_name, wheelchair_accessible).
-    """
+def _get_lines_for_stop(stop_id: str) -> List[str]:
+    if not MBTA_API_KEY:
+        raise RuntimeError("MBTA_API_KEY is not set in .env")
+
+    url = (
+        f"{MBTA_BASE_URL}/routes"
+        f"?api_key={MBTA_API_KEY}"
+        f"&filter[stop]={stop_id}"
+    )
+    data = get_json(url)
+
+    lines: Set[str] = set()
+
+    for route in data.get("data", []):
+        rid = route.get("id", "")
+
+        if rid.startswith("Red"):
+            lines.add("red")
+        elif rid.startswith("Orange"):
+            lines.add("orange")
+        elif rid.startswith("Green"):
+            lines.add("green")
+        elif rid.startswith("Blue"):
+            lines.add("blue")
+        elif rid.startswith("Silver"):
+            lines.add("silver")
+
+    return sorted(lines)
+
+
+def get_nearest_station(latitude: float, longitude: float):
+    if not MBTA_API_KEY:
+        raise RuntimeError("MBTA_API_KEY is missing")
+
     url = (
         f"{MBTA_BASE_URL}/stops"
         f"?api_key={MBTA_API_KEY}"
@@ -57,34 +85,24 @@ def get_nearest_station(latitude: float, longitude: float) -> Tuple[str, bool]:
         raise ValueError("No nearby MBTA stops found")
 
     stop = data["data"][0]
+    stop_id = stop["id"]
     name = stop["attributes"]["name"]
     accessible = stop["attributes"]["wheelchair_boarding"] == 1
-    return name, accessible
+
+    try:
+        lines = _get_lines_for_stop(stop_id)
+    except:
+        lines = []
+
+    return name, accessible, lines, stop_id
 
 
-def find_stop_near(place_name: str) -> Tuple[str, bool, float, float]:
-    """
-    Given a place name, return (station_name, accessible, lat, lon).
-    """
-    lat, lon = get_lat_lng(place_name)
-    name, accessible = get_nearest_station(lat, lon)
-    return name, accessible, lat, lon
+def find_stop_near(place: str):
+    lat, lon = get_lat_lng(place)
+    name, accessible, lines, _ = get_nearest_station(lat, lon)
+    return name, accessible, lat, lon, lines
 
 
-def find_stop_near_coords(latitude: float, longitude: float) -> Tuple[str, bool, float, float]:
-    """
-    Given coordinates, return (station_name, accessible, lat, lon).
-    """
-    name, accessible = get_nearest_station(latitude, longitude)
-    return name, accessible, float(latitude), float(longitude)
-
-
-def main():
-    # Quick manual test from terminal
-    place = "Fenway Park, Boston, MA"
-    station, accessible, lat, lon = find_stop_near(place)
-    print(place, "->", station, accessible, lat, lon)
-
-
-if __name__ == "__main__":
-    main()
+def find_stop_near_coords(lat: float, lon: float):
+    name, accessible, lines, _ = get_nearest_station(lat, lon)
+    return name, accessible, lat, lon, lines

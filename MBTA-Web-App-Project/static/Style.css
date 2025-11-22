@@ -1,109 +1,136 @@
 /* --- Top bar with weather & holiday --- */
 .top-bar {
     width: 100%;
-    padding: 12px 20px;
-    background: white;
-    color: #444;
-    border-bottom: 1px solid #ddd;
+    padding: 10px 24px;
+    background: #ffffff;
+    color: #555;
+    border-bottom: 1px solid #e2e4ea;
 
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 80px;
+    gap: 64px;
 
-    font-size: 15px;
+    font-size: 14px;
+    letter-spacing: 0.01em;
 }
 
 /* --- Global body --- */
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #eef2f7;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at top, #f3f6ff 0, #eef2f7 32%, #e3e7f0 100%);
+    color: #222;
 }
 
 /* --- Home page container & card --- */
 .container {
     width: 100%;
+    min-height: calc(100vh - 48px); /* subtract top-bar height */
     display: flex;
     justify-content: center;
-    padding-top: 60px;
+    align-items: flex-start;
+    padding-top: 56px;
+    padding-bottom: 56px;
+    box-sizing: border-box;
 }
 
 .card {
-    background: white;
-    width: 700px;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: #ffffff;
+    width: 720px;
+    padding: 32px 32px 28px;
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
     text-align: center;
 }
 
+/* hero image */
 .header-image {
     width: 100%;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    display: block;
 }
 
+/* main heading under the image (if you add one later) */
 h1 {
-    margin-top: 0;
-    color: #222;
+    margin: 8px 0 6px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1f2933;
 }
 
 .label {
-    margin-top: 10px;
-    margin-bottom: 8px;
-    font-weight: bold;
+    margin-top: 18px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #374151;
 }
 
 form {
-    margin-top: 10px;
+    margin-top: 6px;
 }
 
+/* input */
 input[type="text"] {
-    width: 80%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 16px;
+    width: 86%;
+    padding: 11px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    font-size: 15px;
+    outline: none;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.08s ease;
+}
+
+input[type="text"]::placeholder {
+    color: #9ca3af;
+}
+
+input[type="text"]:focus {
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.18);
+    transform: translateY(-1px);
 }
 
 /* --- Buttons --- */
 .button-row {
-    margin-top: 15px;
+    margin-top: 18px;
 }
 
+/* primary button only (we removed the secondary one) */
 button {
-    padding: 10px 20px;
-    background-color: #1a73e8;
-    color: white;
+    padding: 10px 26px;
+    background: linear-gradient(135deg, #1a73e8, #2563eb);
+    color: #ffffff;
     border: none;
-    border-radius: 6px;
+    border-radius: 999px;
     cursor: pointer;
-    margin: 6px 5px 0;
-    font-size: 16px;
+    margin-top: 4px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+    transition: transform 0.09s ease, box-shadow 0.09s ease, filter 0.12s ease;
 }
 
 button:hover {
-    background-color: #155bc5;
+    filter: brightness(1.03);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px rgba(37, 99, 235, 0.32);
 }
 
-.secondary-btn {
-    background-color: #f3f4f6;
-    color: #1a73e8;
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.25);
 }
 
-.secondary-btn:hover {
-    background-color: #e3e6ea;
-}
-
-/* --- Loading overlay --- */
+/* --- Loading overlay (if you still use it) --- */
 .loading-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255,255,255,0.8);
+    inset: 0;
+    background: rgba(255, 255, 255, 0.78);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -121,7 +148,7 @@ button:hover {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 4px solid #ddd;
+    border: 4px solid #e5e7eb;
     border-top-color: #1a73e8;
     animation: spin 1s linear infinite;
     margin-bottom: 10px;
@@ -136,26 +163,27 @@ button:hover {
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: 60px;
+    padding: 56px 0;
 }
 
 .results-card {
-    background: white;
-    width: 700px;
+    background: #ffffff;
+    width: 720px;
     padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
     text-align: center;
 }
 
 .results-card h2 {
     margin-top: 0;
-    margin-bottom: 20px;
-    color: #222;
+    margin-bottom: 18px;
+    font-size: 24px;
+    color: #1f2933;
 }
 
 .results-card p {
-    margin: 10px 0;
+    margin: 8px 0;
     font-size: 16px;
 }
 
@@ -163,19 +191,31 @@ button:hover {
 .map-image {
     margin-top: 20px;
     width: 100%;
-    max-width: 600px;
-    border-radius: 10px;
+    max-width: 640px;
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.15);
 }
 
 /* Back link */
 .back-link {
     display: inline-block;
-    margin-top: 20px;
+    margin-top: 22px;
     color: #1a73e8;
-    font-weight: bold;
+    font-weight: 600;
     text-decoration: none;
 }
 
 .back-link:hover {
     text-decoration: underline;
+}
+.line-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 18px 0;
+}
+
+.line-icon {
+    width: 40px;
+    height: 40px;
 }
