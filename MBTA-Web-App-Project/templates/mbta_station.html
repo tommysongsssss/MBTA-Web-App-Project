@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Nearest MBTA Stop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style.css') }}">
+</head>
+<body>
+
+<div class="top-bar">
+    <div>{{ weather_today }}</div>
+    <div>{{ holiday_today }}</div>
+</div>
+
+<div class="results-container">
+    <div class="results-card">
+        <h2>Nearest MBTA Stop</h2>
+
+        <p><strong>Location Searched:</strong> {{ place }}</p>
+        <p><strong>Nearest Station:</strong> {{ station_name }}</p>
+        <p>
+            <strong>Wheelchair Accessible:</strong>
+            {{ "Yes" if wheelchair_accessible else "No" }}
+        </p>
+
+        {% if static_map_url %}
+            <img src="{{ static_map_url }}" alt="Map of station area" class="map-image">
+        {% endif %}
+
+        <a href="{{ url_for('index') }}" class="back-link">Search Again</a>
+    </div>
+</div>
+
+</body>
+</html>

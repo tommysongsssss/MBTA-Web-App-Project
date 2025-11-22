@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Find Nearest MBTA Stop</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style.css') }}">
+</head>
+<body>
+
+<div class="top-bar">
+    <div>{{ weather_today }}</div>
+    <div>{{ holiday_today }}</div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <img src="{{ url_for('static', filename='mbta_home.png') }}" alt="MBTA Train"
+             class="header-image">
+
+        <h1>Find Your Nearest MBTA Stop</h1>
+
+        <form id="search-form" method="post">
+            <p class="label">Enter a place name:</p>
+            <input type="text" name="place_name" placeholder="e.g. Fenway Park, Boston" />
+
+            <div class="button-row">
+                <button type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
